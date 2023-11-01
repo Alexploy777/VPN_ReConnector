@@ -23,7 +23,7 @@ class Config:
 
     def check_config_file(self):
         if os.path.isfile(self.config_file_name):
-            print('file is true') # это принт !!!!!!!!!!!!!!!!!!!
+            # print('file is true') # это принт !!!!!!!!!!!!!!!!!!!
             self.config_reader()
         else:
             self.config_maker()
@@ -80,17 +80,18 @@ class Reconnector:
         conf = Config()
         conf.check_config_file()
 
-        self.gateway_host: str = conf.gateway_host
-        self.timeout: int = conf.timeout
-        self.vpn_name: str = conf.vpn_name
-        self.login: str = conf.login
-        self.password: str = conf.password
-        self.max_connection_attempts: int = conf.max_connection_attempts
+        self.gateway_host: str = conf.config_file_dict['gateway_host']
+        self.timeout: int = conf.config_file_dict['timeout']
+        self.vpn_name: str = conf.config_file_dict['vpn_name']
+        self.login: str = conf.config_file_dict['login']
+        self.password: str = conf.config_file_dict['password']
+        self.max_connection_attempts: int = conf.config_file_dict['max_connection_attempts']
 
     def ping_gateway(self):
         try:
             response = ping(self.gateway_host)
-            return response is not None
+            print(response) # это принт !!!!!!!!!!!!!!!!!!!
+            return response is not False and response is not None
         except:
             print('Ошибка') # это принт !!!!!!!!!!!!!!!!!!!
 
@@ -98,7 +99,8 @@ class Reconnector:
         # Пример команды для подключения к VPN
         rasdial_path = os.path.normpath(os.getenv("windir") + '\\' + 'system32' + '\\' + 'rasdial.exe')
         command = f'{rasdial_path} {self.vpn_name} {self.login} {self.password}'
-        subprocess.run(command, shell=True, text=True, encoding='utf-8')
+        result = subprocess.run(command, shell=True, text=True, encoding='utf-8')
+        return result.returncode
 
     def main(self):
         connected_to_vpn = False
@@ -115,9 +117,12 @@ class Reconnector:
                 # Если пинг отсутствует, подключаемся к VPN (если ещё не подключены)
                 if not connected_to_vpn:
                     print("No ping. Connecting to VPN...") # это принт !!!!!!!!!!!!!!!!!!!
-                    self.connect_vpn()
-                    connected_to_vpn = True
-                    print("Connecting to VPN") # это принт !!!!!!!!!!!!!!!!!!!
+                    result = self.connect_vpn()
+                    if result == 0:
+                        connected_to_vpn = True
+                        print("Connecting to VPN") # это принт !!!!!!!!!!!!!!!!!!!
+                    else:
+                        messagebox.showwarning("Предупреждение", "Не могу соедениться, проверьте настройки!")
                 else:
                     print("Still no ping. Waiting...") # это принт !!!!!!!!!!!!!!!!!!!
                     connection_attempts += 1
@@ -129,16 +134,16 @@ class Reconnector:
 
 
 if __name__ == '__main__':
-    gateway_host = "10.7.11.1"
-    timeout = 5  # Интервал в секундах
-    vpn_name = "deg"
-    login = "solomon"
-    password = "4ervjak0ed==23"
-    max_connection_attempts = 3
+    # gateway_host = "10.7.11.1"
+    # timeout = 5  # Интервал в секундах
+    # vpn_name = "deg"
+    # login = "solomon"
+    # password = "4ervjak0ed==23"
+    # max_connection_attempts = 3
 
-    # reconnect = Reconnector()
-    # reconnect.main()
-
-    conf = Config()
-    conf.check_config_file()
+    reconnect = Reconnector()
+    reconnect.main()
+    #
+    # conf = Config()
+    # conf.check_config_file()
 
