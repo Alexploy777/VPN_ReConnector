@@ -12,14 +12,6 @@ import configparser
 class Config:
     config_file_name = 'reconnect_conf.ini'
     config_file_required_list = ['gateway_host', 'vpn_name', 'login', 'password']
-    # config_file_dict = {
-    #     'gateway_host': "",
-    #     'timeout': 5,  # Интервал в секундах
-    #     'vpn_name': "",
-    #     'login': "",
-    #     'password': "",
-    #     'max_connection_attempts': 3,
-    #     }
 
     def __init__(self):
         self.config_obj = configparser.ConfigParser()
@@ -27,23 +19,15 @@ class Config:
 
         root = tkinter.Tk()
         root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
-        root.attributes("-topmost", True)
-        # root.mainloop()
-
-    # gateway_host = ""
-    # timeout = 5  # Интервал в секундах
-    # vpn_name = ""
-    # login = ""
-    # password = ""
-    # max_connection_attempts = 3
+        root.attributes("-topmost", True) # окна поверх других окон
 
     def check_config_file(self):
         if os.path.isfile(self.config_file_name):
-            print('file is true')
+            print('file is true') # это принт !!!!!!!!!!!!!!!!!!!
             self.config_reader()
         else:
             self.config_maker()
-            print('file is false')
+            print('file is false') # это принт !!!!!!!!!!!!!!!!!!!
 
     def config_reader(self):
         try:
@@ -57,20 +41,12 @@ class Config:
             'max_connection_attempts' : int(self.config_obj.get('DEFAULT', 'max_connection_attempts')),
             }
 
-            # print(self.config_file_required_list)
-
             for required_item in self.config_file_dict:
                 if required_item in self.config_file_required_list and not self.config_file_dict[required_item]:
-                    # print(f'заполни поле {required_item}')
-                    print(required_item, '=', self.config_file_dict[required_item])
+                    print(required_item, '=', self.config_file_dict[required_item]) # это принт !!!!!!!!!!!!!!!!!!!
                     messagebox.showerror("Ошибка", f"Заполните поле {required_item}")
                     os.system(self.osCommandString)
                     self.config_reader()
-
-
-            # for item in self.config_file_dict:
-            #     pass
-
         except:
             self.config_maker()
 
@@ -116,8 +92,7 @@ class Reconnector:
             response = ping(self.gateway_host)
             return response is not None
         except:
-            print('Ошибка')
-            # QMessageBox.critical(self, "Ошибка ", "Выделите элемент который хотите изменить")
+            print('Ошибка') # это принт !!!!!!!!!!!!!!!!!!!
 
     def connect_vpn(self):
         # Пример команды для подключения к VPN
@@ -134,17 +109,17 @@ class Reconnector:
         while True:
             if self.ping_gateway():
                 # Если есть пинг, продолжаем ждать
-                print("Ping successful")
+                print("Ping successful") # это принт !!!!!!!!!!!!!!!!!!!
                 connected_to_vpn = False
             else:
                 # Если пинг отсутствует, подключаемся к VPN (если ещё не подключены)
                 if not connected_to_vpn:
-                    print("No ping. Connecting to VPN...")
+                    print("No ping. Connecting to VPN...") # это принт !!!!!!!!!!!!!!!!!!!
                     self.connect_vpn()
                     connected_to_vpn = True
-                    print("Connecting to VPN")
+                    print("Connecting to VPN") # это принт !!!!!!!!!!!!!!!!!!!
                 else:
-                    print("Still no ping. Waiting...")
+                    print("Still no ping. Waiting...") # это принт !!!!!!!!!!!!!!!!!!!
                     connection_attempts += 1
                     if not connection_attempts < max_connection_attempts:
                         connected_to_vpn = False
