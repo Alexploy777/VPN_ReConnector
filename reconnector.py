@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import subprocess
 
@@ -17,9 +18,9 @@ class Config:
         self.config_obj = configparser.ConfigParser()
         self.osCommandString = f"notepad.exe {self.config_file_name}"
 
-        root = tkinter.Tk()
-        root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
-        root.attributes("-topmost", True) # окна поверх других окон
+        # root = tkinter.Tk()
+        # root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
+        # root.attributes("-topmost", True) # окна поверх других окон
 
     def check_config_file(self):
         if os.path.isfile(self.config_file_name):
@@ -90,8 +91,7 @@ class Reconnector:
     def ping_gateway(self):
         try:
             response = ping(self.gateway_host)
-            print(response) # это принт !!!!!!!!!!!!!!!!!!!
-            return response is not False and response is not None
+            return response # is not False and response is not None
         except:
             print('Ошибка') # это принт !!!!!!!!!!!!!!!!!!!
 
@@ -99,8 +99,23 @@ class Reconnector:
         # Пример команды для подключения к VPN
         rasdial_path = os.path.normpath(os.getenv("windir") + '\\' + 'system32' + '\\' + 'rasdial.exe')
         command = f'{rasdial_path} {self.vpn_name} {self.login} {self.password}'
-        result = subprocess.run(command, shell=True, text=True, encoding='utf-8')
-        return result.returncode
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='cp866')
+
+        # Изменяем кодировку вывода для PyCharm
+        # sys.stdout.buffer.write(result.stdout.encode('utf-8'))
+        # sys.stdout.flush()
+
+        # return print(result.returncode)
+        # return print(result.stdout)
+        return result.stdout
+
+    def show_message(self, title, message):
+        root = tkinter.Tk()
+        root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
+        root.attributes("-topmost", True) # окна поверх других окон
+        root.after(self.timeout*1000, root.destroy)
+        messagebox.showwarning(title, message)
+
 
     def main(self):
         connected_to_vpn = False
@@ -109,20 +124,22 @@ class Reconnector:
         connection_attempts = 0
 
         while True:
-            if self.ping_gateway():
+            if ping_answer := self.ping_gateway():
                 # Если есть пинг, продолжаем ждать
-                print("Ping successful") # это принт !!!!!!!!!!!!!!!!!!!
+                print(f"Ping successful,time - {ping_answer}") # это принт !!!!!!!!!!!!!!!!!!!
                 connected_to_vpn = False
             else:
                 # Если пинг отсутствует, подключаемся к VPN (если ещё не подключены)
                 if not connected_to_vpn:
-                    print("No ping. Connecting to VPN...") # это принт !!!!!!!!!!!!!!!!!!!
+                    print(f"No ping - {ping_answer}. Connecting to VPN...") # это принт !!!!!!!!!!!!!!!!!!!
                     result = self.connect_vpn()
                     if result == 0:
                         connected_to_vpn = True
                         print("Connecting to VPN") # это принт !!!!!!!!!!!!!!!!!!!
                     else:
-                        messagebox.showwarning("Предупреждение", "Не могу соедениться, проверьте настройки!")
+                        title = "Проверьте корректность настроек!"
+                        message = f'имя подключения - {self.vpn_name}\nлогин - {self.login}\nпароль - {self.password}\n{result}'
+                        self.show_message(title=title, message=message)
                 else:
                     print("Still no ping. Waiting...") # это принт !!!!!!!!!!!!!!!!!!!
                     connection_attempts += 1
