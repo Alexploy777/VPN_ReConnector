@@ -6,7 +6,6 @@ import subprocess
 import tkinter
 from tkinter import messagebox
 from ping3 import ping
-from dataclasses import dataclass
 import configparser
 
 
@@ -15,23 +14,19 @@ class Config:
     config_file_required_list = ['gateway_host', 'vpn_name', 'login', 'password']
 
     def __init__(self):
-        self.config_obj = configparser.ConfigParser()
-        self.osCommandString = f"notepad.exe {self.config_file_name}"
-
-        # root = tkinter.Tk()
-        # root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
-        # root.attributes("-topmost", True) # окна поверх других окон
+        self.config_obj = configparser.ConfigParser() # создаем объект configparser
+        self.osCommandString = f"notepad.exe {self.config_file_name}" # готовим строку для последующего открытия конфига в блокноте
 
     def check_config_file(self):
         if os.path.isfile(self.config_file_name):
-            # print('file is true') # это принт !!!!!!!!!!!!!!!!!!!
+            # Если в корне существует файл конфигурации с именем config_file_name, то читаем его
             self.config_reader()
         else:
+            # Иначе создадим его
             self.config_maker()
-            print('file is false') # это принт !!!!!!!!!!!!!!!!!!!
 
     def config_reader(self):
-        try:
+        try: # если файл корректный - готовим словарь со считанными из конфига данными
             self.config_obj.read(self.config_file_name, encoding="utf-8")
             self.config_file_dict = {
             'gateway_host' : self.config_obj.get('DEFAULT', 'gateway_host'),
