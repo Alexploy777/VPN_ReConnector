@@ -151,13 +151,6 @@ class Reconnector:
 
 
 if __name__ == '__main__':
-    # gateway_host = "10.7.11.1"
-    # timeout = 5  # Интервал в секундах
-    # vpn_name = "deg"
-    # login = "solomon"
-    # password = "4ervjak0ed==23"
-    # max_connection_attempts = 3
-
     reconnect = Reconnector()
     reconnect.main()
     #
