@@ -9,6 +9,7 @@ from ping3 import ping
 
 
 from config_read import Config
+from show_message import show_message
 
 
 class Reconnector:
@@ -21,15 +22,15 @@ class Reconnector:
 
     def __init__(self):
         super().__init__()
-        conf = Config()
+        conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
         conf.config_reader()
 
         self.gateway_host: str = conf.config_file_dict['gateway_host']
-        self.timeout: int = conf.config_file_dict['timeout']
+        self.timeout: int = int(conf.config_file_dict['timeout'])
         self.vpn_name: str = conf.config_file_dict['vpn_name']
         self.login: str = conf.config_file_dict['login']
         self.password: str = conf.config_file_dict['password']
-        self.max_connection_attempts: int = conf.config_file_dict['max_connection_attempts']
+        self.max_connection_attempts: int = int(conf.config_file_dict['max_connection_attempts'])
 
     def ping_gateway(self):
         try:
@@ -52,12 +53,12 @@ class Reconnector:
         # return print(result.stdout)
         return result.stdout
 
-    def show_message(self, title, message):
-        root = tkinter.Tk()
-        root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
-        root.attributes("-topmost", True) # окна поверх других окон
-        root.after(self.timeout*1000, root.destroy)
-        messagebox.showwarning(title, message)
+    # def show_message(self, title, message):
+    #     root = tkinter.Tk()
+    #     root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
+    #     root.attributes("-topmost", True) # окна поверх других окон
+    #     root.after(self.timeout*1000, root.destroy)
+    #     messagebox.showwarning(title, message)
 
 
     def main(self):
@@ -82,7 +83,7 @@ class Reconnector:
                     else:
                         title = "Проверьте корректность настроек!"
                         message = f'имя подключения - {self.vpn_name}\nлогин - {self.login}\nпароль - {self.password}\n{result}'
-                        self.show_message(title=title, message=message)
+                        show_message(title=title, message=message, timeout=5)
                 else:
                     print("Still no ping. Waiting...") # это принт !!!!!!!!!!!!!!!!!!!
                     connection_attempts += 1
@@ -101,15 +102,15 @@ if __name__ == '__main__':
     # password = "4ervjak0ed==23"
     # max_connection_attempts = 3
 
-    # reconnect = Reconnector()
-    # reconnect.main()
-    #
-
     config_file_list = ['gateway_host', 'timeout', 'vpn_name', 'login', 'password', 'max_connection_attempts']
     config_file_required = {'timeout': '5', 'max_connection_attempts': '3'}
     config_file_name = 'reconnect_conf.ini'
 
-    conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
-    conf.config_reader()
-    print(conf.config_file_dict)
+    reconnect = Reconnector()
+    reconnect.main()
+
+
+    # conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
+    # conf.config_reader()
+    # print(conf.config_file_dict)
 
