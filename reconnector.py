@@ -1,25 +1,13 @@
 import os
-import sys
 import time
 import subprocess
-
-import tkinter
-from tkinter import messagebox
 from ping3 import ping
-
 
 from config_read import Config
 from show_message import show_message
 
 
 class Reconnector:
-    # gateway_host: str
-    # timeout: int
-    # vpn_name: str
-    # login: str
-    # password: str
-    # max_connection_attempts: int
-
     def __init__(self):
         super().__init__()
         conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
@@ -45,21 +33,7 @@ class Reconnector:
         command = f'{rasdial_path} {self.vpn_name} {self.login} {self.password}'
         result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='cp866')
 
-        # Изменяем кодировку вывода для PyCharm
-        # sys.stdout.buffer.write(result.stdout.encode('utf-8'))
-        # sys.stdout.flush()
-
-        # return print(result.returncode)
-        # return print(result.stdout)
         return result.stdout
-
-    # def show_message(self, title, message):
-    #     root = tkinter.Tk()
-    #     root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
-    #     root.attributes("-topmost", True) # окна поверх других окон
-    #     root.after(self.timeout*1000, root.destroy)
-    #     messagebox.showwarning(title, message)
-
 
     def main(self):
         connected_to_vpn = False
@@ -95,20 +69,22 @@ class Reconnector:
 
 
 if __name__ == '__main__':
-    # gateway_host = "10.7.11.1"
-    # timeout = 5  # Интервал в секундах
-    # vpn_name = "deg"
-    # login = "solomon"
-    # password = "4ervjak0ed==23"
-    # max_connection_attempts = 3
 
-    config_file_list = ['gateway_host', 'timeout', 'vpn_name', 'login', 'password', 'max_connection_attempts']
-    config_file_required = {'timeout': '5', 'max_connection_attempts': '3'}
+
+    config_file_list = ['gateway_host',
+                        'timeout', 'vpn_name',
+                        'login', 'password',
+                        'max_connection_attempts',
+                        'no_message_mode'
+                        ]
+    config_file_required = {'timeout': '5',
+                            'max_connection_attempts': '3',
+                            'no_message_mode': 'True',
+                            }
     config_file_name = 'reconnect_conf.ini'
 
     reconnect = Reconnector()
     reconnect.main()
-
 
     # conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
     # conf.config_reader()

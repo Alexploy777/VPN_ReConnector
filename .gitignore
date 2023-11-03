@@ -1,2 +1,5 @@
 /venv
 /.idea
+/read_only_me
+/test/*
+/reconnect_conf.ini

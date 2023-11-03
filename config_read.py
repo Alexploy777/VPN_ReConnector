@@ -1,6 +1,8 @@
 import os
 import configparser
 
+from show_message import show_message
+
 
 class Config:
     def __init__(self, **kwargs):
