@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 from ping3 import ping
+import logging
 
 from config_read import Config
 from show_message import show_message
@@ -12,6 +13,7 @@ class Reconnector:
         super().__init__()
         conf = Config(config_file_list=config_file_list, config_file_name=config_file_name, config_file_required=config_file_required)
         conf.config_reader()
+        logging.basicConfig(level=logging.INFO, filename="reconnect_log.log", filemode="w", format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
 
         self.gateway_host: str = conf.config_file_dict['gateway_host']
         self.timeout: int = int(conf.config_file_dict['timeout'])
@@ -21,6 +23,7 @@ class Reconnector:
         self.max_connection_attempts: int = int(conf.config_file_dict['max_connection_attempts'])
         # self.no_message_mode : str = conf.config_file_dict['no_message_mode']
         self.no_message_mode: bool = False if conf.config_file_dict['no_message_mode'].lower() == 'false' else True
+        self.logging_mode: bool = False if conf.config_file_dict['logging_mode'].lower() == 'false' else True
 
     def ping_gateway(self):
         try:
@@ -30,6 +33,7 @@ class Reconnector:
             return None
 
     def connect_vpn(self):
+        self.log('Начинаю подключение к VPN')
         print('Начинаю подключение к VPN') # Убрать потом!!!!!!!!!!!!
         rasdial_path = os.path.normpath(os.getenv("windir") + '\\' + 'system32' + '\\' + 'rasdial.exe')
         command = f'{rasdial_path} {self.vpn_name} {self.login} {self.password}'
@@ -40,6 +44,7 @@ class Reconnector:
 
         if ansfer_code == 0:
             self.flag_vpn_connected = True
+            self.log('Подключение успешно')
         else:
             self.flag_vpn_connected = False
 
@@ -47,11 +52,11 @@ class Reconnector:
             message = f'имя подключения - {self.vpn_name}\nлогин - {self.login}\nпароль - {self.password}\n{ansfer_text}'
             if self.no_message_mode is False:
                 show_message(title=title, message=message, timeout=5)
-            else:
-                print(f'{title}\n{message}') # Убрать потом!!!!!!!!!!!!
+            self.log(message)
 
 
     def disconnect_vpn(self):
+        self.log('Начинаю отключение от VPN')
         print('Начинаю отключение от VPN')  # Убрать потом!!!!!!!!!!!!
         rasdial_path = os.path.normpath(os.getenv("windir") + '\\' + 'system32' + '\\' + 'rasdial.exe')
         command = f'{rasdial_path} {self.vpn_name} /disconnect'
@@ -63,16 +68,19 @@ class Reconnector:
         if ansfer_code == 0:
             self.flag_vpn_connected = False
             self.no_ping_counter = 0
+            self.log('Отключение успешно')
         else:
             title = "Отключение не подтвердилось!"
             message = ansfer_text
             if self.no_message_mode is False:
                 show_message(title=title, message=message, timeout=5)
-            else:
-                print(f'{title}\n{message}') # Убрать потом!!!!!!!!!!!!
+            self.log(message)
 
         time.sleep(self.timeout)
 
+    def log(self, message):
+        if self.logging_mode is True:
+            logging.info(message)
 
     def start(self):
         max_no_ping_attempts = 3
@@ -86,12 +94,17 @@ class Reconnector:
 
             elif self.no_ping_counter < max_no_ping_attempts:
                 self.no_ping_counter += 1
-                print(f'сообщение из < elif >, пинга не было {self.no_ping_counter} раз..')
+                message = f'сообщение из < elif >, пинга не было {self.no_ping_counter} раз..'
+                self.log(message)
+                print(message)  # Убрать потом!!!!!!!!!!!!
                 ping_is_down = False
+
 
             else:
                 self.no_ping_counter += 1
-                print(f'сообщение из < else >, пинга не было {self.no_ping_counter} раз!!')
+                message = f'сообщение из < else >, пинга не было {self.no_ping_counter} раз!!'
+                self.log(message)
+                print(message)  # Убрать потом!!!!!!!!!!!!
                 ping_is_down = True
                 self.no_ping_counter = 0
 
@@ -111,11 +124,13 @@ if __name__ == '__main__':
                         'timeout', 'vpn_name',
                         'login', 'password',
                         'max_connection_attempts',
-                        'no_message_mode'
+                        'no_message_mode',
+                        'logging_mode'
                         ]
     config_file_required = {'timeout': '5',
                             'max_connection_attempts': '3',
                             'no_message_mode': 'True',
+                            'logging_mode': 'True'
                             }
     config_file_name = 'reconnect_conf.ini'
 
