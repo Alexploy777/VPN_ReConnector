@@ -11,6 +11,10 @@ class Config:
         self.config_file_required = kwargs['config_file_required']
         self.osCommandString = f"notepad.exe {self.config_file_name}"
 
+
+    def config_file_open(self):
+        os.system(self.osCommandString)
+
     def config_maker(self):
         try:
             self.config_obj = configparser.ConfigParser()
