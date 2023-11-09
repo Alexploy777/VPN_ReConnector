@@ -58,8 +58,8 @@ class Config:
                 break
         if self.flag:
             self.config_file_dict = config_file_dict
-        else:
-            self.config_reader()
+        # else:
+            # self.config_reader()
 
 if __name__ == '__main__':
     config_file_list = ['gateway_host', 'timeout', 'vpn_name', 'login', 'password', 'max_connection_attempts']

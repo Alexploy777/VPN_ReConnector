@@ -14,7 +14,7 @@ def show_message(title, message, timeout=None, message_type='showwarning'):
     }
     message_func = message_types.get(message_type)
     if message_func:
-        message_func(title, message)
+        message_func(title, ' '.join(message.split()))
     else:
         raise ValueError(f"Неподдерживаемый тип сообщения: {message_type}")
 

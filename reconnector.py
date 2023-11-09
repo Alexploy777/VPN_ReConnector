@@ -104,6 +104,7 @@ class Reconnector:
         time.sleep(self.timeout)
 
     def log(self, message, mode='info'):
+        message = ' '.join(message.split())
         if self.logging_mode is True:
             if mode == 'info':
                 logging.info(message)
