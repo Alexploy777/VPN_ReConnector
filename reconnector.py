@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import sys
 import threading
 import time
 
@@ -18,23 +19,39 @@ class Reconnector:
                            config_file_required=config_file_required)
         self.conf.config_reader()
         self.running = True
-        self.gateway_host: str = self.conf.config_file_dict['gateway_host']
-        self.timeout: int = int(self.conf.config_file_dict['timeout'])
-        self.vpn_name: str = self.conf.config_file_dict['vpn_name']
-        self.login: str = self.conf.config_file_dict['login']
-        self.password: str = self.conf.config_file_dict['password']
-        self.max_connection_attempts: int = int(self.conf.config_file_dict['max_connection_attempts'])
-        self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
-        self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
-        self.file_log_mode: str = self.conf.config_file_dict['file_log_mode']
+        try:
+            self.gateway_host: str = self.conf.config_file_dict['gateway_host']
+            self.timeout: int = int(self.conf.config_file_dict['timeout'])
+            self.vpn_name: str = self.conf.config_file_dict['vpn_name']
+            self.login: str = self.conf.config_file_dict['login']
+            self.password: str = self.conf.config_file_dict['password']
+            self.max_connection_attempts: int = int(self.conf.config_file_dict['max_connection_attempts'])
+            self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
+            self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
+            self.file_log_mode: str = self.conf.config_file_dict['file_log_mode']
+            self.delay : int = int(self.conf.config_file_dict['delay'])
 
-        logging.basicConfig(level=logging.INFO, filename="reconnect_log.log", filemode=self.file_log_mode,
-                            format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
+            logging.basicConfig(level=logging.INFO, filename="reconnect_log.log", filemode=self.file_log_mode,
+                                format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
+
+
+        except (ValueError, AttributeError) as e:
+            if e == ValueError:
+                sys.exit()
+            else:
+                message = str(e)
+                show_message(title=type(e), message=message, message_type='showerror')
+                self.conf.config_file_open()
+            sys.exit()
+
         self.log('START')
 
         self.tray_icon = TrayIcon(main_script=self)
         self.tray_thread = threading.Thread(target=self.tray_icon.run)
         self.tray_thread.start()
+
+        # except:
+        #     print('exept')
 
     def stop(self):
         # print('stop!!!!')  # Убрать потом!!!!!!!!!!!!
@@ -115,6 +132,8 @@ class Reconnector:
 
 
     def start(self):
+        if self.delay:
+            time.sleep(self.delay)
         max_no_ping_attempts = 3
         self.no_ping_counter = 0
         self.flag_vpn_connected = False
@@ -122,7 +141,7 @@ class Reconnector:
             if not self.running:
                 break
             if self.ping_gateway():  # Пинг есть!
-                # print(f'Пинг есть! Задержка = {self.ping_gateway()}')  # Убрать потом!!!!!!!!!!!!
+                print(f'Пинг есть! Задержка = {self.ping_gateway()}')  # Убрать потом!!!!!!!!!!!!
                 self.no_ping_counter = 0 # счетчик отсутствия пинга
                 ping_is_down = False # статус "падения" пинга
 
@@ -162,12 +181,14 @@ if __name__ == '__main__':
                         'no_message_mode',
                         'logging_mode',
                         'file_log_mode',
+                        'delay',
                         ]
     config_file_required = {'timeout': '5',
                             'max_connection_attempts': '3',
                             'no_message_mode': 'True',
                             'logging_mode': 'True',
                             'file_log_mode': 'a',
+                            'delay': '',
                             }
     config_file_name = 'reconnect_conf.ini'
 
