@@ -54,13 +54,13 @@ class Config:
             if not config_file_dict[item]:
                 self.flag = False
                 show_message('Ошибка!', f'Поле < {item} > должно быть заполнено.', message_type='showerror')
-                os.system(self.osCommandString)
+                # os.system(self.osCommandString)
                 break
         if self.flag:
             self.config_file_dict = config_file_dict
-        # else:
+        else:
             # self.config_reader()
-            # self.config_file_open()
+            self.config_file_open()
 
 if __name__ == '__main__':
     config_file_list = ['gateway_host', 'timeout', 'vpn_name', 'login', 'password', 'max_connection_attempts']

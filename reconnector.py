@@ -25,7 +25,7 @@ class Reconnector:
             self.vpn_name: str = self.conf.config_file_dict['vpn_name']
             self.login: str = self.conf.config_file_dict['login']
             self.password: str = self.conf.config_file_dict['password']
-            self.max_connection_attempts: int = int(self.conf.config_file_dict['max_connection_attempts'])
+            self.max_no_ping_attempts: int = int(self.conf.config_file_dict['max_no_ping_attempts'])
             self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
             self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
             self.file_log_mode: str = self.conf.config_file_dict['file_log_mode']
@@ -42,7 +42,7 @@ class Reconnector:
                 message = str(e)
                 show_message(title=type(e), message=message, message_type='showerror')
                 self.conf.config_file_open()
-            sys.exit()
+                sys.exit()
 
         self.log('START')
 
@@ -177,14 +177,14 @@ if __name__ == '__main__':
     config_file_list = ['gateway_host',
                         'timeout', 'vpn_name',
                         'login', 'password',
-                        'max_connection_attempts',
+                        'max_no_ping_attempts',
                         'no_message_mode',
                         'logging_mode',
                         'file_log_mode',
                         'delay',
                         ]
     config_file_required = {'timeout': '5',
-                            'max_connection_attempts': '3',
+                            'max_no_ping_attempts': '3',
                             'no_message_mode': 'True',
                             'logging_mode': 'True',
                             'file_log_mode': 'a',
