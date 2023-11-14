@@ -32,12 +32,12 @@ class Reconnector:
             logging.basicConfig(level=logging.INFO, filename="reconnect_log.log", filemode=self.file_log_mode,
                                 format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
 
-        except (ValueError, AttributeError) as e:
+        except (ValueError, AttributeError, KeyError) as e:
             if e == ValueError:
                 sys.exit()
             else:
                 message = str(e)
-                show_message(title=type(e), message=message, message_type='showerror')
+                show_message(title='Пустое поле!', message=message, message_type='showerror')
                 self.conf.config_file_open()
                 sys.exit()
 
