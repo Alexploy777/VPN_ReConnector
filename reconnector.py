@@ -14,28 +14,23 @@ from show_message import show_message
 
 class Reconnector:
     def __init__(self):
-        super().__init__()
-        self.conf = Config(config_file_list=config_file_list, config_file_name=config_file_name,
-                           config_file_required=config_file_required)
+        self.conf = Config(config_file_dict=config_file_dict, config_file_name=config_file_name)
         self.conf.config_reader()
         self.running = True
         try:
-            self.gateway_host: str = self.conf.config_file_dict['gateway_host']
-            self.timeout: int = int(self.conf.config_file_dict['timeout'])
-            self.vpn_name: str = self.conf.config_file_dict['vpn_name']
-            self.login: str = self.conf.config_file_dict['login']
-            self.password: str = self.conf.config_file_dict['password']
-            self.max_no_ping_attempts: int = int(self.conf.config_file_dict['max_no_ping_attempts'])
-            # self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
-            # self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
-            self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
-            self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
-            self.file_log_mode: str = self.conf.config_file_dict['file_log_mode']
-            self.delay : int = int(self.conf.config_file_dict['delay'])
+            self.gateway_host: str = self.conf.config_file_dict_output['gateway_host']
+            self.timeout: int = self.conf.config_file_dict_output['timeout_int']
+            self.vpn_name: str = self.conf.config_file_dict_output['vpn_name']
+            self.login: str = self.conf.config_file_dict_output['login']
+            self.password: str = self.conf.config_file_dict_output['password']
+            self.max_no_ping_attempts: int = self.conf.config_file_dict_output['max_no_ping_attempts_int']
+            self.no_message_mode: bool = self.conf.config_file_dict_output['no_message_mode_bool']
+            self.logging_mode: bool = self.conf.config_file_dict_output['logging_mode_bool']
+            self.file_log_mode: str = self.conf.config_file_dict_output['file_log_mode']
+            self.delay : int = self.conf.config_file_dict_output['delay_int']
 
             logging.basicConfig(level=logging.INFO, filename="reconnect_log.log", filemode=self.file_log_mode,
                                 format="%(asctime)s %(levelname)s %(message)s", encoding='utf-8')
-
 
         except (ValueError, AttributeError) as e:
             if e == ValueError:
@@ -52,8 +47,6 @@ class Reconnector:
         self.tray_thread = threading.Thread(target=self.tray_icon.run)
         self.tray_thread.start()
 
-        # except:
-        #     print('exept')
 
     def stop(self):
         # print('stop!!!!')  # Убрать потом!!!!!!!!!!!!
@@ -131,26 +124,25 @@ class Reconnector:
                 logging.warning(message)
             elif mode == 'error':
                 logging.error(message)
-            print(mode, message)  # Убрать потом!!!!!!!!!!!!
+            # print(mode, message)  # Убрать потом!!!!!!!!!!!!
 
 
     def start(self):
         if self.delay:
             time.sleep(self.delay)
-        max_no_ping_attempts = 3
         self.no_ping_counter = 0
         self.flag_vpn_connected = False
         while True:
             if not self.running:
                 break
             if self.ping_gateway():  # Пинг есть!
-                print(f'Пинг есть! Задержка = {self.ping_gateway()}')  # Убрать потом!!!!!!!!!!!!
+                # print(f'Пинг есть! Задержка = {self.ping_gateway()}')  # Убрать потом!!!!!!!!!!!!
                 self.no_ping_counter = 0 # счетчик отсутствия пинга
                 ping_is_down = False # статус "падения" пинга
 
-            elif self.no_ping_counter < max_no_ping_attempts:
+            elif self.no_ping_counter < self.max_no_ping_attempts:
                 self.no_ping_counter += 1
-                message = f'сообщение из < elif >, пинга не было {self.no_ping_counter} раз..'
+                message = f'Пинга не было {self.no_ping_counter} раз(а)..'
                 self.log(message)
                 # print(message)  # Убрать потом!!!!!!!!!!!!
                 ping_is_down = False
@@ -158,7 +150,7 @@ class Reconnector:
 
             else:
                 self.no_ping_counter += 1
-                message = f'сообщение из < else >, пинга не было {self.no_ping_counter} раз!!'
+                message = f'Пинга не было уже {self.no_ping_counter} раз(а)!!'
                 self.log(message)
                 # print(message)  # Убрать потом!!!!!!!!!!!!
                 ping_is_down = True
@@ -177,24 +169,18 @@ class Reconnector:
 
 
 if __name__ == '__main__':
-    config_file_list = ['gateway_host',
-                        'timeout', 'vpn_name',
-                        'login', 'password',
-                        'max_no_ping_attempts',
-                        'no_message_mode',
-                        'logging_mode',
-                        'file_log_mode',
-                        'delay',
-                        ]
-    config_file_required = {'timeout': '5',
-                            'max_no_ping_attempts': '3',
-                            'no_message_mode': 'True',
-                            'logging_mode': 'True',
-                            'file_log_mode': 'a',
-                            'delay': '',
-                            }
+    config_file_dict = {'gateway_host': '',
+                        'timeout_int': 5,
+                        'vpn_name': '',
+                        'login': '',
+                        'password': '',
+                        'max_no_ping_attempts_int': 3,
+                        'no_message_mode_bool': True,
+                        'logging_mode_bool': True,
+                        'file_log_mode': 'a',
+                        'delay_int': 0,
+                        }
     config_file_name = 'reconnect_conf.ini'
-
     running_main = True
 
 
