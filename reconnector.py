@@ -26,6 +26,8 @@ class Reconnector:
             self.login: str = self.conf.config_file_dict['login']
             self.password: str = self.conf.config_file_dict['password']
             self.max_no_ping_attempts: int = int(self.conf.config_file_dict['max_no_ping_attempts'])
+            # self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
+            # self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
             self.no_message_mode: bool = False if self.conf.config_file_dict['no_message_mode'].lower() == 'false' else True
             self.logging_mode: bool = False if self.conf.config_file_dict['logging_mode'].lower() == 'false' else True
             self.file_log_mode: str = self.conf.config_file_dict['file_log_mode']
@@ -129,6 +131,7 @@ class Reconnector:
                 logging.warning(message)
             elif mode == 'error':
                 logging.error(message)
+            print(mode, message)  # Убрать потом!!!!!!!!!!!!
 
 
     def start(self):
