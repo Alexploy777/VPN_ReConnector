@@ -4,6 +4,7 @@ from tkinter import messagebox
 def show_message(title, message, timeout=None, message_type='showwarning'):
     root = tkinter.Tk()
     root.withdraw()  # эта функция скрывает основное окно программы, можете её убрать
+    root.iconbitmap(r'al.ico')
     root.attributes("-topmost", True)  # окна поверх других окон
     if timeout:
         root.after(timeout * 1000, root.destroy)
